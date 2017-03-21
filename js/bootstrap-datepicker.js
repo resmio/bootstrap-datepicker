@@ -539,12 +539,21 @@
 			}
 
 			var local = new Date(utc.getTime() + (utc.getTimezoneOffset() * 60000));
+			// the following change is for the overlap between Daylight time and Standard time
+			// in timezones where this is broken with aJavascriptDate.getTimezoneOffset()
+			var adjustDST = (local.getTimezoneOffset() - utc.getTimezoneOffset()) * 60000;
+			var localWithDSTAdjust = (utc.getTimezoneOffset() === local.getTimezoneOffset())
+				? local
+				: new Date(local.getTime() + adjustDST);
 
-			if (local.getTimezoneOffset() !== utc.getTimezoneOffset()) {
-				local = new Date(utc.getTime() + (local.getTimezoneOffset() * 60000));
-			}
-
-			return local;
+			return localWithDSTAdjust;
+      // code that was there:
+			// var local = new Date(utc.getTime() + (utc.getTimezoneOffset() * 60000));
+			// if (local.getTimezoneOffset() !== utc.getTimezoneOffset()) {
+			// 	local = new Date(utc.getTime() + (local.getTimezoneOffset() * 60000));
+			// }
+      //
+			// return local;
 		},
 		_local_to_utc: function(local){
 			return local && new Date(local.getTime() - (local.getTimezoneOffset()*60000));
